@@ -1,0 +1,93 @@
+#!/bin/bash
+#
+# dsclean: Remove pesky .DS_Store files.
+#
+# Usage:
+#   dsclean
+#     -> Clean current directory recursively in silent mode.
+#
+#   dsclean /path/to/dir
+#     -> Clean specified directory recursively in silent mode.
+#
+#   dsclean -p|--parent [dir]
+#     -> Clean only the specified (or current) directory non-recursively in silent mode.
+#
+#   dsclean -v|--verbose [other options]
+#     -> Enable verbose output.
+
+# Default settings
+TARGET="."
+RECURSIVE=1
+VERBOSE=0
+
+# Parse command-line arguments
+while [[ "$#" -gt 0 ]]; do
+    case "$1" in
+        -p|--parent)
+            RECURSIVE=0
+            shift
+            # If a non-flag argument follows, use it as the target directory.
+            if [[ "$#" -gt 0 && "$1" != -* ]]; then
+                TARGET="$1"
+                shift
+            fi
+            ;;
+        -v|--verbose)
+            VERBOSE=1
+            shift
+            ;;
+        *)
+            TARGET="\$1"
+            shift
+            ;;
+    esac
+done
+
+# Check if the TARGET exists and IS a directory.
+if [[ ! -d "$TARGET" ]]; then
+    echo "Error: Target directory '$TARGET' does not exist." >&2
+    exit 1
+fi
+
+# Function to delete files verbosely.
+delete_verbose() {
+    local find_opts=()
+    if (( RECURSIVE )); then
+        find_opts=(-type f -name '.DS_Store')
+    else
+        find_opts=(-maxdepth 1 -type f -name '.DS_Store')
+    fi
+
+    # Notify the user about the cleaning action.
+    if (( RECURSIVE )); then
+        echo "Recursively cleaning .DS_Store files in '$TARGET'..."
+    else
+        echo "Cleaning .DS_Store files in '$TARGET' (non-recursive)..."
+    fi
+
+    # Find and delete each file with a verbose message.
+    while IFS= read -r file; do
+        echo "Deleting file: $file"
+        rm "$file"
+    done < <(find "$TARGET" "${find_opts[@]}" -print)
+
+    echo "Cleaning complete."
+}
+
+# Function to delete files silently.
+delete_silent() {
+    if (( RECURSIVE )); then
+        find "$TARGET" -type f -name '.DS_Store' -delete
+    else
+        find "$TARGET" -maxdepth 1 -type f -name '.DS_Store' -delete
+    fi
+}
+
+# Execute deletion based on the verbose setting.
+if (( VERBOSE )); then
+    delete_verbose
+else
+    delete_silent
+fi
+
+exit 0
