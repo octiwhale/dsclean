@@ -22,8 +22,8 @@ I couldn't find a tool that hit all the marks, so I made this in like 15 minutes
 
 1. **Download the script** to your Mac:
    ```sh
-   curl -o /usr/local/bin/dsclean https://raw.githubusercontent.com/octiwhale/dsclean/main/dsclean
-   chmod +x /usr/local/bin/dsclean
+   sudo curl -o /usr/local/bin/dsclean https://raw.githubusercontent.com/octiwhale/dsclean/main/dsclean
+   sudo chmod +x /usr/local/bin/dsclean
    ```
 
 2. Now the `dsclean` command is ready to go anywhere in your terminal.
