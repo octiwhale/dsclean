@@ -37,7 +37,7 @@ while [[ "$#" -gt 0 ]]; do
             shift
             ;;
         *)
-            TARGET="\$1"
+            TARGET="$1"
             shift
             ;;
     esac
